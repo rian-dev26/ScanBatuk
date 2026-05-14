@@ -1,0 +1,8 @@
+{
+  "name": "Batuk AI",
+  "description": "AI-powered web platform for early TB risk screening using cough sound analysis.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": []
+}

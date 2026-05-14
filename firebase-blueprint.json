@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered user profile.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["email", "name", "role", "createdAt", "updatedAt"]
+    },
+    "Screening": {
+      "title": "Screening",
+      "description": "Screening result data.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "audioUrl": { "type": "string" },
+        "riskScore": { "type": "number" },
+        "riskLevel": { "type": "string", "enum": ["Low Risk", "Medium Risk", "High Risk"] },
+        "symptoms": { "type": "array", "items": { "type": "string" } },
+        "aiInsight": { "type": "string" },
+        "recommendations": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "riskScore", "riskLevel", "createdAt"]
+    },
+    "ChatSession": {
+       "title": "Chat Session",
+       "description": "A single chat session",
+       "type": "object",
+       "properties": {
+           "userId": { "type": "string" },
+           "createdAt": { "type": "string" },
+           "updatedAt": { "type": "string" }
+       },
+       "required": ["userId", "createdAt", "updatedAt"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "History of chatbot conversations. Parent is ChatSession.",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "enum": ["user", "ai"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["role", "content", "timestamp"]
+    },
+    "EducationalArticle": {
+      "title": "Educational Article",
+      "description": "Educational content for users.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "authorId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "content", "authorId", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    },
+    "/screenings/{screeningId}": {
+      "schema": { "$ref": "#/entities/Screening" },
+      "description": "Stores all screening records."
+    },
+    "/chat_sessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/ChatSession" },
+      "description": "Stores chat sessions."
+    },
+    "/chat_sessions/{sessionId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "Stores chatbot conversations."
+    },
+    "/educational_articles/{articleId}": {
+      "schema": { "$ref": "#/entities/EducationalArticle" },
+      "description": "Stores educational articles managed by admin."
+    }
+  }
+}

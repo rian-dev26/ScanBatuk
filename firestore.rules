@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // === GLOBAL PRIMITIVES ===
+    function isSignedIn() { return request.auth != null; }
+    // Only real users who have updated their profile to be admin can be admin
+    function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+
+    // === USERS ===
+    function isValidUser(data) {
+       return data.keys().hasAll(['email', 'name', 'role', 'createdAt', 'updatedAt']) &&
+              data.keys().size() == 5 &&
+              data.email is string && data.email.size() <= 100 &&
+              data.name is string && data.name.size() <= 100 &&
+              data.role in ['user', 'admin'] && // Create/Update handles logical restriction
+              data.createdAt is timestamp &&
+              data.updatedAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      // On create, role MUST be user unless created by an existing admin. No self-admin assignment.
+      allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidUser(incoming()) &&
+                    incoming().createdAt == request.time && incoming().updatedAt == request.time &&
+                    (incoming().role == 'user' || isAdmin() || (incoming().role == 'admin' && request.auth.token.email == 'rianandikasirait@gmail.com'));
+      allow update: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isAdmin()) && isValidUser(incoming()) &&
+                    incoming().createdAt == existing().createdAt &&
+                    incoming().updatedAt == request.time &&
+                    (incoming().role == existing().role || isAdmin() || (incoming().role == 'admin' && request.auth.token.email == 'rianandikasirait@gmail.com'));
+    }
+
+    // === SCREENINGS ===
+    function isValidScreening(data) {
+       return data.keys().hasAll(['userId', 'riskScore', 'riskLevel', 'createdAt']) &&
+              data.keys().size() >= 4 && data.keys().size() <= 8 && // 4 required + up to 4 optional
+              data.userId is string && data.userId == request.auth.uid &&
+              data.riskScore is number && data.riskScore >= 0 && data.riskScore <= 100 &&
+              data.riskLevel in ['Low Risk', 'Medium Risk', 'High Risk'] &&
+              data.createdAt == request.time &&
+              (!('audioUrl' in data) || data.audioUrl is string && data.audioUrl.size() <= 1024) &&
+              (!('aiInsight' in data) || data.aiInsight is string && data.aiInsight.size() <= 2000) &&
+              (!('symptoms' in data) || data.symptoms is list && data.symptoms.size() <= 20) &&
+              (!('recommendations' in data) || data.recommendations is list && data.recommendations.size() <= 10);
+    }
+
+    match /screenings/{screeningId} {
+       allow create: if isSignedIn() && isValidId(screeningId) && isValidScreening(incoming());
+       allow read: if isSignedIn() && (isAdmin() || (resource.data.userId == request.auth.uid));
+       allow delete: if isSignedIn() && isValidId(screeningId) && (isAdmin() || (existing().userId == request.auth.uid));
+       allow update: if false; // Screenings are immutable
+    }
+
+    // === CHAT SESSIONS ===
+    function isValidChatSession(data) {
+       return data.keys().hasAll(['userId', 'createdAt', 'updatedAt']) &&
+              data.keys().size() == 3 &&
+              data.userId is string && data.userId == request.auth.uid &&
+              data.createdAt == request.time &&
+              data.updatedAt == request.time;
+    }
+
+    match /chat_sessions/{sessionId} {
+       allow create: if isSignedIn() && isValidId(sessionId) && isValidChatSession(incoming());
+       allow read: if isSignedIn() && (isAdmin() || (resource.data.userId == request.auth.uid));
+       allow delete: if isSignedIn() && isValidId(sessionId) && (isAdmin() || (existing().userId == request.auth.uid));
+       allow update: if isSignedIn() && isValidId(sessionId) && (isAdmin() || (existing().userId == request.auth.uid)) &&
+                     incoming().diff(existing()).affectedKeys().hasOnly(['updatedAt']) &&
+                     incoming().updatedAt == request.time;
+
+       match /messages/{messageId} {
+           function isValidChatMessage(data) {
+               return data.keys().hasAll(['role', 'content', 'timestamp']) &&
+                      data.keys().size() == 3 &&
+                      data.role in ['user', 'ai'] &&
+                      data.content is string && data.content.size() <= 5000 &&
+                      data.timestamp is string && data.timestamp.size() <= 50;
+           }
+           allow create: if isSignedIn() && isValidId(sessionId) && isValidId(messageId) &&
+                         (isAdmin() || get(/databases/$(database)/documents/chat_sessions/$(sessionId)).data.userId == request.auth.uid) &&
+                         isValidChatMessage(incoming());
+           allow read: if isSignedIn() && isValidId(sessionId) && isValidId(messageId) &&
+                       (isAdmin() || get(/databases/$(database)/documents/chat_sessions/$(sessionId)).data.userId == request.auth.uid);
+           allow update, delete: if false; // Chat messages immutable
+       }
+    }
+
+    // === EDUCATIONAL ARTICLES ===
+    function isValidArticle(data) {
+       return data.keys().hasAll(['title', 'content', 'authorId', 'createdAt', 'updatedAt']) &&
+              data.keys().size() == 5 &&
+              data.title is string && data.title.size() <= 200 &&
+              data.content is string && data.content.size() <= 20000 &&
+              data.authorId is string && data.authorId == request.auth.uid &&
+              data.createdAt == request.time &&
+              data.updatedAt == request.time;
+    }
+
+    match /educational_articles/{articleId} {
+       allow read: if true; // Publicly readable
+       allow create: if isAdmin() && isValidId(articleId) && isValidArticle(incoming());
+       allow update: if isAdmin() && isValidId(articleId) &&
+                     incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content', 'updatedAt']) &&
+                     incoming().updatedAt == request.time &&
+                     incoming().title is string && incoming().title.size() <= 200 &&
+                     incoming().content is string && incoming().content.size() <= 20000;
+       allow delete: if isAdmin() && isValidId(articleId);
+    }
+  }
+}
