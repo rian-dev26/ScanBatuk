@@ -103,19 +103,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           })}
         </nav>
 
-        {/* Bottom: Theme + Logout */}
+        {/* Bottom: Logout */}
         <div className="p-4" style={{ borderTop: '1px solid var(--border)' }}>
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl w-full transition-colors mb-1"
-            style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-ink)'; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
-          >
-            {isDark ? <Sun className="w-5 h-5 opacity-70" /> : <Moon className="w-5 h-5 opacity-70" />}
-            <span className="font-medium text-sm">{isDark ? 'Mode Terang' : 'Mode Gelap'}</span>
-          </button>
           <button 
             onClick={() => setShowLogoutModal(true)}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ef4444] hover:bg-[#ef4444]/10 w-full transition-colors"
