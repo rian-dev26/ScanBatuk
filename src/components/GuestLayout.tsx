@@ -45,7 +45,7 @@ export function GuestLayout() {
     <div className="min-h-screen flex flex-col font-sans" style={{ backgroundColor: 'var(--bg-canvas)', color: 'var(--text-ink)' }}>
       {/* ── Top Navigation ── */}
       <header className={cn(
-        "sticky top-0 z-50 transition-all duration-300 h-16",
+        "fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 h-16",
         scrolled
           ? "backdrop-blur-xl shadow-[0_1px_0_0_var(--border)]"
           : "backdrop-blur-md"
@@ -65,7 +65,7 @@ export function GuestLayout() {
               link.to ? (
                 <Link key={link.label} to={link.to} className="px-4 py-2 text-sm font-medium transition-colors rounded-lg" style={{ color: 'var(--text-muted)' }} onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-ink)'; e.currentTarget.style.backgroundColor = 'var(--bg-card)'; }} onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}>
                   {link.label}
-                </Link>
+                 </Link>
               ) : (
                 <button key={link.label} onClick={link.onClick} className="px-4 py-2 text-sm font-medium transition-colors rounded-lg" style={{ color: 'var(--text-muted)' }} onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-ink)'; e.currentTarget.style.backgroundColor = 'var(--bg-card)'; }} onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}>
                   {link.label}
@@ -162,7 +162,7 @@ export function GuestLayout() {
       </AnimatePresence>
 
       {/* ── Main Content ── */}
-      <main className="flex-1 flex flex-col w-full">
+      <main className="flex-1 flex flex-col w-full pt-16">
         <Outlet />
       </main>
 

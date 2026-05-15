@@ -10,12 +10,12 @@ export function UserLayout() {
   const { isDark, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen font-sans flex flex-col md:flex-row" style={{ backgroundColor: 'var(--bg-canvas)', color: 'var(--text-ink)' }}>
+    <div className="h-[100dvh] overflow-hidden font-sans flex flex-col md:flex-row relative" style={{ backgroundColor: 'var(--bg-canvas)', color: 'var(--text-ink)' }}>
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <main className="flex-1 min-w-0 flex flex-col md:ml-64">
-        {/* Header */}
-        <header className="px-4 py-4 flex items-center justify-between md:justify-end sticky top-0 z-30" style={{ backgroundColor: 'var(--bg-canvas)', borderBottom: '1px solid var(--border)' }}>
+      <div className="flex-1 min-w-0 flex flex-col md:ml-64 h-[100dvh]">
+        {/* Header - Fixed & Shrink-0 agar tidak pernah tergulung */}
+        <header className="shrink-0 px-4 py-4 flex items-center justify-between md:justify-end z-30" style={{ backgroundColor: 'var(--bg-canvas)', borderBottom: '1px solid var(--border)' }}>
           <Link to="/" className="md:hidden flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 rounded-xl bg-[#a4d4c5] flex items-center justify-center text-[#1a3a3a]">
               <Activity className="w-5 h-5" />
@@ -42,10 +42,11 @@ export function UserLayout() {
           </div>
         </header>
         
-        <div className="flex-1 p-4 md:p-8">
+        {/* Scrollable Content Area */}
+        <main id="dashboard-main-scroll" className="flex-1 overflow-y-auto p-4 md:p-8">
           <Outlet />
-        </div>
-      </main>
+        </main>
+      </div>
       
       <AIChatButton />
     </div>
