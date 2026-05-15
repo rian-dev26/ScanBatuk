@@ -49,7 +49,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed top-0 left-0 h-screen w-64 flex flex-col z-50 overflow-hidden",
+        "fixed top-0 left-0 h-[100dvh] w-64 flex flex-col z-50 overflow-hidden",
         "transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
         "md:translate-x-0",
         isOpen ? "translate-x-0" : "-translate-x-full"
@@ -107,7 +107,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* Tombol Keluar - shrink-0 agar SELALU terlihat di bawah, tidak hilang */}
-        <div className="p-4 shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="p-4 pb-8 shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
           <button 
             onClick={() => setShowLogoutModal(true)}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ef4444] hover:bg-[#ef4444]/10 w-full transition-colors"

@@ -120,7 +120,7 @@ export default function ScreeningPage() {
     <div className="flex-1 flex flex-col py-12 px-4" style={{ backgroundColor: 'var(--bg-canvas)' }}>
       <div className="max-w-2xl mx-auto w-full">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-medium mb-3" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>ScanBatuk</h1>
+          <h1 className="text-2xl md:text-3xl font-medium mb-3" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>ScanBatuk</h1>
           <p style={{ color: 'var(--text-muted)' }}>Rekam suara batuk Anda untuk mendapatkan screening risiko awal.</p>
         </div>
 
