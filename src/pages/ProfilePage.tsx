@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { User as UserIcon, Mail, Shield, Activity, ArrowLeft, LogOut } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { User as UserIcon, Mail, Shield, Activity, LogOut } from 'lucide-react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { collection, query, where, getCountFromServer } from 'firebase/firestore';
@@ -12,6 +12,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const [stats, setStats] = useState({ screenings: 0, chats: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     async function fetchStats() {
@@ -51,7 +52,8 @@ export default function ProfilePage() {
     <div className="max-w-2xl mx-auto w-full pb-20">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-medium" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Profil Saya</h1>
+        {/* Bug #4: Responsive font size — lebih kecil di mobile */}
+        <h1 className="text-xl md:text-3xl font-medium" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Profil Saya</h1>
       </div>
 
       {/* Profile Card */}
@@ -148,11 +150,9 @@ export default function ProfilePage() {
 
         <div className="border-t mx-4" style={{ borderColor: 'var(--border)' }} />
 
+        {/* Bug #5: Tombol logout sekarang memunculkan popup konfirmasi, bukan langsung logout */}
         <button
-          onClick={async () => {
-            await logout();
-            navigate('/');
-          }}
+          onClick={() => setShowLogoutModal(true)}
           className="w-full flex items-center justify-between p-4 rounded-2xl transition-colors text-left group hover:bg-[#ef4444]/10"
         >
           <div className="flex items-center gap-4">
@@ -166,6 +166,48 @@ export default function ProfilePage() {
           </div>
         </button>
       </motion.div>
+
+      {/* Logout Confirmation Modal — identik dengan yang ada di Sidebar */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 backdrop-blur-sm z-50"
+              style={{ backgroundColor: 'var(--overlay-black)' }}
+              onClick={() => setShowLogoutModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, top: '45%' }}
+              animate={{ opacity: 1, scale: 1, top: '50%' }}
+              exit={{ opacity: 0, scale: 0.95, top: '45%' }}
+              className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm rounded-3xl shadow-2xl p-6 z-50"
+              style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}
+            >
+              <div className="w-12 h-12 rounded-full bg-[#ef4444]/10 flex items-center justify-center mb-4 text-[#ef4444]">
+                <LogOut className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-ink)', letterSpacing: '-0.02em' }}>Keluar dari akun?</h3>
+              <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Sesi Anda akan diakhiri. Anda perlu login kembali untuk mengakses riwayat screening Anda.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowLogoutModal(false)} className="btn-secondary flex-1 py-3">Batal</button>
+                <button
+                  onClick={async () => {
+                    setShowLogoutModal(false);
+                    await logout();
+                    navigate('/');
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl font-semibold text-sm text-white bg-[#ef4444] hover:bg-[#dc2626] transition-all"
+                >
+                  Ya, Keluar
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+

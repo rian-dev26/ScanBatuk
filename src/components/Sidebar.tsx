@@ -49,19 +49,21 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed top-0 left-0 h-screen w-64 flex flex-col z-50",
+        "fixed top-0 left-0 h-screen w-64 flex flex-col z-50 overflow-hidden",
         "transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
         "md:translate-x-0",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )} style={{ backgroundColor: 'var(--bg-canvas)', borderRight: '1px solid var(--border)' }}>
-        <Link to="/" onClick={onClose} className="p-6 flex items-center gap-2 hover:opacity-80 transition-opacity">
+        {/* Logo - shrink-0 agar tidak terdesak */}
+        <Link to="/" onClick={onClose} className="p-6 flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0">
           <div className="w-8 h-8 rounded-xl bg-[#a4d4c5] flex items-center justify-center text-[#1a3a3a]">
             <Activity className="w-5 h-5" />
           </div>
           <span className="font-medium text-lg" style={{ letterSpacing: '-0.03em', color: 'var(--text-ink)' }}>ScanBatuk</span>
         </Link>
         
-        <div className="px-6 pb-6">
+        {/* User Card - shrink-0 agar tidak terdesak */}
+        <div className="px-6 pb-4 shrink-0">
           <div className="rounded-2xl p-4 flex items-center gap-3" style={{ backgroundColor: 'var(--bg-card)' }}>
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ backgroundColor: 'var(--bg-brand-teal)', color: 'var(--text-on-brand-teal)' }}>
               {initials}
@@ -77,7 +79,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-0.5">
+        {/* Nav - flex-1 + min-h-0 + overflow-y-auto agar hanya nav yang scroll jika konten banyak */}
+        <nav className="flex-1 min-h-0 overflow-y-auto px-3 space-y-0.5">
           {navItems.map((item) => {
             const active = isActive(item.path);
             const Icon = item.icon;
@@ -103,8 +106,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           })}
         </nav>
 
-        {/* Bottom: Logout */}
-        <div className="p-4" style={{ borderTop: '1px solid var(--border)' }}>
+        {/* Tombol Keluar - shrink-0 agar SELALU terlihat di bawah, tidak hilang */}
+        <div className="p-4 shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
           <button 
             onClick={() => setShowLogoutModal(true)}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ef4444] hover:bg-[#ef4444]/10 w-full transition-colors"
@@ -114,6 +117,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </button>
         </div>
       </aside>
+
 
       <LogoutModal 
         isOpen={showLogoutModal} 

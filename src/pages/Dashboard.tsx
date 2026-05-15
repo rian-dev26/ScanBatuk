@@ -94,7 +94,7 @@ export default function Dashboard() {
       {/* ── Header ── */}
       <motion.div variants={itemVariants} className="mb-8">
         <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Selamat datang kembali 👋</p>
-        <h1 className="text-3xl font-medium mb-1" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>{user.name}</h1>
+        <h1 className="text-xl md:text-3xl font-medium mb-1" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>{user.name}</h1>
         <p style={{ color: 'var(--text-muted)' }}>Pantau perkembangan kesehatan paru-paru Anda melalui screening rutin.</p>
       </motion.div>
 

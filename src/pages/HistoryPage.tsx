@@ -117,7 +117,7 @@ export default function HistoryPage() {
     <div className="max-w-4xl mx-auto w-full pb-20">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-medium mb-2" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Riwayat Screening</h1>
+        <h1 className="text-xl md:text-3xl font-medium mb-2" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Riwayat Screening</h1>
         <p style={{ color: 'var(--text-muted)' }}>Semua hasil screening ScanBatuk Anda, dari yang terbaru.</p>
       </div>
 

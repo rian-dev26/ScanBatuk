@@ -47,6 +47,8 @@ export default function NearbyPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<PlaceResult | null>(null);
   const [customQuery, setCustomQuery] = useState('');
+  // Bug #6: State untuk popup konfirmasi sebelum buka Google Maps
+  const [pendingMapsPlace, setPendingMapsPlace] = useState<{ name: string; url: string } | null>(null);
 
   // Map styles based on theme
   const darkMapStyle = [
@@ -204,9 +206,9 @@ export default function NearbyPage() {
           mapInstanceRef.current?.panTo({ lat: place.lat, lng: place.lng });
           mapInstanceRef.current?.setZoom(16);
           
-          // Buka di Google Maps
+          // Bug #6: Tampilkan popup konfirmasi, jangan langsung buka Maps
           const url = `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}&query_place_id=${place.id}`;
-          window.open(url, '_blank');
+          setPendingMapsPlace({ name: place.name, url });
         });
 
           markersRef.current.push(marker);
@@ -231,7 +233,8 @@ export default function NearbyPage() {
 
   const openDirections = (place: PlaceResult) => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&destination_place_id=${place.id}`;
-    window.open(url, '_blank');
+    // Bug #6: Tampilkan popup konfirmasi untuk tombol Petunjuk Arah juga
+    setPendingMapsPlace({ name: place.name, url });
   };
 
   if (!user) return <Navigate to="/login" replace />;
@@ -261,7 +264,8 @@ export default function NearbyPage() {
     <div className="max-w-6xl mx-auto w-full pb-20">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-medium mb-2" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Lokasi Fasilitas Kesehatan</h1>
+        {/* Bug #4: Responsive font size — lebih kecil di mobile */}
+        <h1 className="text-xl md:text-3xl font-medium mb-2" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Lokasi Fasilitas Kesehatan</h1>
         <p style={{ color: 'var(--text-muted)' }}>Temukan rumah sakit, apotek, dan klinik terdekat dari lokasi Anda.</p>
       </div>
 
@@ -377,9 +381,9 @@ export default function NearbyPage() {
                         mapInstanceRef.current?.panTo({ lat: place.lat, lng: place.lng });
                         mapInstanceRef.current?.setZoom(16);
                         
-                        // Buka di Google Maps
+                        // Bug #6: Tampilkan popup konfirmasi, jangan langsung buka Maps
                         const url = `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}&query_place_id=${place.id}`;
-                        window.open(url, '_blank');
+                        setPendingMapsPlace({ name: place.name, url });
                       }}
                       className={cn(
                         'w-full text-left px-5 py-4 transition-colors'
@@ -458,6 +462,52 @@ export default function NearbyPage() {
               </button>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bug #6: Popup konfirmasi sebelum membuka Google Maps */}
+      <AnimatePresence>
+        {pendingMapsPlace && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 backdrop-blur-sm z-50"
+              style={{ backgroundColor: 'var(--overlay-black)' }}
+              onClick={() => setPendingMapsPlace(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, top: '45%' }}
+              animate={{ opacity: 1, scale: 1, top: '50%' }}
+              exit={{ opacity: 0, scale: 0.95, top: '45%' }}
+              className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm rounded-3xl shadow-2xl p-6 z-50"
+              style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}
+            >
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: 'var(--color-brand-mint)' }}>
+                <MapPin className="w-6 h-6 text-[#1a3a3a]" />
+              </div>
+              <h3 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-ink)', letterSpacing: '-0.02em' }}>Buka di Google Maps?</h3>
+              <p className="text-sm mb-1 font-medium" style={{ color: 'var(--text-ink)' }}>{pendingMapsPlace.name}</p>
+              <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Anda akan diarahkan ke aplikasi Google Maps untuk melihat lokasi atau petunjuk arah.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPendingMapsPlace(null)}
+                  className="btn-secondary flex-1 py-3"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={() => {
+                    window.open(pendingMapsPlace.url, '_blank');
+                    setPendingMapsPlace(null);
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl font-semibold text-sm text-[#1a3a3a] transition-all"
+                  style={{ backgroundColor: 'var(--color-brand-mint)' }}
+                >
+                  Buka Google Maps
+                </button>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
