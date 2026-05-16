@@ -63,7 +63,7 @@ export default function ResultPage() {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
            <h1 className="text-2xl md:text-3xl font-medium" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Hasil Screening</h1>
            {user?.email === 'guest@anonymous' && (
-             <Link to="/login" className="btn-secondary h-9 px-5 text-sm">
+             <Link to="/login" state={{ pendingResult: result }} className="btn-secondary h-9 px-5 text-sm">
                Simpan Permanen
              </Link>
            )}

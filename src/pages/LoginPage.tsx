@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Activity, Mail, Lock, ArrowRight, ShieldCheck, ArrowLeft, AlertCircle, Loader2, User } from 'lucide-react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '../services/firebase';
 
 export default function LoginPage() {
   const location = useLocation();
@@ -35,6 +37,22 @@ export default function LoginPage() {
         if (!name.trim()) throw new Error('Nama lengkap harus diisi.');
         await registerWithEmail(email, password, name);
       }
+
+      const pendingResult = location.state?.pendingResult;
+      if (pendingResult && auth.currentUser) {
+        try {
+          await addDoc(collection(db, 'screenings'), {
+            userId: auth.currentUser.uid,
+            riskScore: pendingResult.score,
+            riskLevel: pendingResult.riskLevel,
+            aiInsight: pendingResult.insight,
+            createdAt: serverTimestamp()
+          });
+        } catch (err) {
+          console.error("Failed to save pending result:", err);
+        }
+      }
+
       navigate('/dashboard');
     } catch (e: any) {
       let msg = 'Gagal memproses permintaan.';
@@ -56,7 +74,26 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setIsLoading(true); setErrorMsg(null);
-    try { await loginWithGoogle(); navigate('/dashboard'); }
+    try { 
+      await loginWithGoogle(); 
+      
+      const pendingResult = location.state?.pendingResult;
+      if (pendingResult && auth.currentUser) {
+        try {
+          await addDoc(collection(db, 'screenings'), {
+            userId: auth.currentUser.uid,
+            riskScore: pendingResult.score,
+            riskLevel: pendingResult.riskLevel,
+            aiInsight: pendingResult.insight,
+            createdAt: serverTimestamp()
+          });
+        } catch (err) {
+          console.error("Failed to save pending result:", err);
+        }
+      }
+
+      navigate('/dashboard'); 
+    }
     catch (e: any) { setErrorMsg(`Login gagal: ${e.message}.`); }
     finally { setIsLoading(false); }
   };
