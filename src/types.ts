@@ -3,6 +3,10 @@ export interface User {
   email: string;
   role: 'user' | 'admin';
   name: string;
+  age?: number;
+  isSmoker?: boolean;
+  coughDurationDays?: number;
+  symptoms?: string;
 }
 
 export interface ScreeningResult {

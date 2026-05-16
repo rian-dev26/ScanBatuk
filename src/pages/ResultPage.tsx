@@ -60,8 +60,8 @@ export default function ResultPage() {
   return (
     <div className="flex-1 flex flex-col py-8 px-4" style={{ backgroundColor: 'var(--bg-canvas)' }}>
       <div className="max-w-3xl mx-auto w-full">
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
-           <h1 className="text-2xl font-medium" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Hasil Screening</h1>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+           <h1 className="text-2xl md:text-3xl font-medium" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Hasil Screening</h1>
            {user?.email === 'guest@anonymous' && (
              <Link to="/login" className="btn-secondary h-9 px-5 text-sm">
                Simpan Permanen

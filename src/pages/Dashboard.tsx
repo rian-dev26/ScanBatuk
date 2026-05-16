@@ -183,6 +183,45 @@ export default function Dashboard() {
               ))}
             </div>
           </motion.div>
+
+          {/* Trend Chart */}
+          {history.length > 1 && (
+            <motion.div variants={itemVariants} className="rounded-3xl p-6" style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-semibold text-base" style={{ color: 'var(--text-ink)' }}>Grafik Perkembangan Skor</h3>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-card)' }}>
+                  <TrendingUp className="w-4 h-4" style={{ color: 'var(--text-dim)' }} />
+                </div>
+              </div>
+              <div className="flex items-end gap-4 h-40 relative">
+                {/* Background grid lines */}
+                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                  {[100, 75, 50, 25, 0].map(val => (
+                    <div key={val} className="w-full border-t border-dashed" style={{ borderColor: 'var(--border-soft)' }} />
+                  ))}
+                </div>
+                
+                {[...history].reverse().map((item, i) => (
+                  <div key={item.id} className="flex-1 flex flex-col items-center justify-end h-full group relative z-10">
+                    <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold px-2 py-1 rounded shadow-sm" style={{ backgroundColor: item.bg, color: item.color }}>
+                      {item.score}
+                    </div>
+                    <motion.div 
+                      className="w-full max-w-[40px] rounded-t-lg transition-all cursor-pointer hover:opacity-80"
+                      style={{ backgroundColor: item.barColor }}
+                      initial={{ height: 0 }}
+                      animate={{ height: `${item.score}%` }}
+                      transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
+                      onClick={() => navigate('/dashboard/result', { state: { result: { riskLevel: item.risk, score: item.score, insight: item.insight } } })}
+                    />
+                    <div className="text-[10px] mt-2 font-medium truncate w-full text-center" style={{ color: 'var(--text-muted)' }}>
+                      {item.date.split(' ')[0]}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* ── Right Sidebar ── */}

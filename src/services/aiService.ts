@@ -4,7 +4,7 @@ let aiClient: GoogleGenAI | null = null;
 
 export function getGemini(): GoogleGenAI {
   if (!aiClient) {
-    const key = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+    const key = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : undefined);
     if (!key) {
       console.warn("Gemini API Key missing. Using mock responses.");
     }
@@ -13,7 +13,9 @@ export function getGemini(): GoogleGenAI {
   return aiClient;
 }
 
-export async function analyzeCoughAudio(audioBlob: Blob): Promise<{ riskLevel: string, score: number, insight: string }> {
+import { User } from '../types';
+
+export async function analyzeCoughAudio(audioBlob: Blob, userContext?: Partial<User>): Promise<{ riskLevel: string, score: number, insight: string }> {
   // Fallback map if the API fails or no key
   const fallbackResult = {
     riskLevel: 'Medium Risk' as 'Low Risk' | 'Medium Risk' | 'High Risk',
@@ -28,7 +30,6 @@ export async function analyzeCoughAudio(audioBlob: Blob): Promise<{ riskLevel: s
 
   try {
     const ai = getGemini();
-
     // Convert Blob to Base64 to send to Gemini API
     const base64Audio = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -43,13 +44,59 @@ export async function analyzeCoughAudio(audioBlob: Blob): Promise<{ riskLevel: s
       reader.readAsDataURL(audioBlob);
     });
 
+    const promptText = `You are 'ScanBatuk AI', an advanced respiratory acoustic analysis expert system. 
+Your task is to process audio files with absolute clinical precision. 
+FOLLOW THIS STRICT PROTOCOL WITHOUT EXCEPTION:
+
+1. PRIMARY FILTER (ZERO-TOLERANCE FOR NON-COUGH):
+   - Detect whether the audio is dominated by HUMAN COUGHING or other sounds.
+   - IF YOU HEAR: People talking (even if they are discussing coughs/illnesses), mumbling, music, or background noise without clear coughing sounds.
+   - MANDATORY ACTION (IF NOT COUGH): 
+     * riskLevel: "Low Risk"
+     * score: A number between 1 and 9
+     * insight: "Sistem tidak mendeteksi suara batuk yang valid. Audio teridentifikasi sebagai percakapan atau kebisingan latar. Silakan rekam ulang suara batuk Anda secara natural di tempat yang tenang."
+
+2. ACOUSTIC CLINICAL ANALYSIS (ONLY if cough is confirmed):
+   Identify the following features from the cough sound:
+   - Type: Dry (non-productive, sharp/harsh), Wet (productive, rattling/mucus sound), Barking, or Wheezing.
+   - Frequency: How many cough repetitions occur in the 6 seconds.
+   - Intensity: Does the cough sound shallow (throat) or deep (lower lungs).
+
+3. PRECISION DYNAMIC SCORING (1-100):
+   - STRICTLY FORBIDDEN to use standard/default benchmark numbers (like 65).
+   - Calculate a specific score (e.g., 28, 54, 82) based on the combination of frequency, intensity, and sound anomalies (mucus/wheezing).
+   - Scoring Guide: 
+     * Mild/occasional cough (dry): 15-35
+     * Moderate cough (repeated/mildly wet): 36-69
+     * Severe cough (loud/paroxysmal/wheezing/shortness of breath): 70-95
+
+4. OUTPUT RULES (STRICT JSON FORMAT):
+   - Output MUST ONLY be valid JSON. 
+   - DO NOT use markdown code blocks (\`\`\`json ... \`\`\`), introductory text, or closing text. 
+   - Mandatory Schema:
+   {"riskLevel": "Low Risk" | "Medium Risk" | "High Risk", "score": number, "insight": string}
+   
+   - The 'insight' field MUST BE IN INDONESIAN, empathetic, professional, and explain specifically WHAT YOU HEAR (example: 'Terdengar 3 kali repetisi batuk basah dengan intensitas sedang, mengindikasikan adanya penumpukan dahak...'). 
+   - End the 'insight' sentence with exactly: 'Catatan: Ini HANYA skrining awal dari AI, bukan diagnosis medis. Konsultasikan dengan dokter untuk kepastiannya.'`;
+
+    let finalPromptText = promptText;
+    if (userContext && (userContext.age || userContext.isSmoker !== undefined || userContext.coughDurationDays || userContext.symptoms)) {
+      finalPromptText += `\n\nADDITIONAL PATIENT MEDICAL CONTEXT:\n`;
+      if (userContext.age) finalPromptText += `- Age: ${userContext.age} years old\n`;
+      if (userContext.isSmoker !== undefined) finalPromptText += `- Smoking Status: ${userContext.isSmoker ? 'Yes, Active Smoker' : 'Non-Smoker'}\n`;
+      if (userContext.coughDurationDays) finalPromptText += `- Cough Duration: ${userContext.coughDurationDays} days\n`;
+      if (userContext.symptoms) finalPromptText += `- Accompanying Symptoms: ${userContext.symptoms}\n`;
+      finalPromptText += `Use the medical context above to provide a more accurate and personalized insight in Indonesian. Especially if there are Accompanying Symptoms, consider whether they point to a serious infection (e.g., fever/shortness of breath) or a common allergy.`;
+    }
+
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: [
             {
                 role: 'user',
                 parts: [
-                    { text: "Anda adalah AI pendeteksi pola suara batuk dari platform kesehatan 'ScanBatuk'. Analisis input audio batuk ini. Berikan evaluasi berupa tingkat risiko indikasi penyakit pernapasan (TB, infeksi, asma, dsb), berikan skor (0-100), dan berikan insight detail dalam bahasa Indonesia dengan nada empatik, profesional, dan menenangkan (seperti instruksi Apple Health).\n\nIngat, di akhir insight tekankan bahwa ini HANYA skrining awal, BUKAN diagnosis medis, dan arahkan user ke dokter.\n\nAnda HANYA boleh membalas dalam format JSON yang valid persis seperti kerangka ini tanpa tambahan markdown (```json ... ```):\n{\"riskLevel\": \"Low Risk\" | \"Medium Risk\" | \"High Risk\", \"score\": number, \"insight\": string}" },
+                    { text: finalPromptText },
+
                     { inlineData: { data: base64Audio, mimeType: audioBlob.type || 'audio/webm' } }
                 ]
             }
@@ -70,15 +117,19 @@ export async function analyzeCoughAudio(audioBlob: Blob): Promise<{ riskLevel: s
       };
     }
     
-    throw new Error("Empty response");
-  } catch (err) {
+    throw new Error("Empty response dari Google Gemini");
+  } catch (err: any) {
     console.error("Kesalahan Gemini Audio API:", err);
-    return fallbackResult;
+    return {
+      riskLevel: 'Medium Risk',
+      score: 50,
+      insight: `Terjadi kesalahan pada AI: ${err.message}. Tolong beri tahu developer.`
+    };
   }
 }
 
 export async function askHealthAssistant(message: string, history: any[], userLocation?: { lat: number, lng: number } | null): Promise<string> {
-  const key = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+  const key = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : undefined);
   if (!key) {
      return new Promise(resolve => setTimeout(() => resolve("Maaf, API Key Gemini belum dikonfigurasi. Ini adalah balasan simulasi. Hubungi fasilitas kesehatan terdekat untuk informasi lebih lanjut mengenai gejala Anda."), 1000));
   }

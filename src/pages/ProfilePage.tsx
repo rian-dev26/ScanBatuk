@@ -7,12 +7,21 @@ import { collection, query, where, getCountFromServer } from 'firebase/firestore
 import { db } from '../services/firebase';
 import { Skeleton } from '../components/ui/SkeletonLoader';
 
+import { doc, updateDoc } from 'firebase/firestore';
+
 export default function ProfilePage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState({ screenings: 0, chats: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const [age, setAge] = useState<number | ''>(user?.age || '');
+  const [isSmoker, setIsSmoker] = useState<boolean>(user?.isSmoker || false);
+  const [coughDurationDays, setCoughDurationDays] = useState<number | ''>(user?.coughDurationDays || '');
+  const [symptoms, setSymptoms] = useState<string>(user?.symptoms || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
   useEffect(() => {
     async function fetchStats() {
@@ -40,6 +49,32 @@ export default function ProfilePage() {
   }, [user]);
 
   if (!user) return <Navigate to="/login" replace />;
+
+  const handleSaveMedicalData = async () => {
+    setIsSaving(true);
+    setSaveMessage('');
+    try {
+      const userRef = doc(db, 'users', user.id);
+      await updateDoc(userRef, {
+        age: age === '' ? null : Number(age),
+        isSmoker,
+        coughDurationDays: coughDurationDays === '' ? null : Number(coughDurationDays),
+        symptoms
+      });
+      // Update local user context if possible, but Firestore is the source of truth
+      user.age = age === '' ? undefined : Number(age);
+      user.isSmoker = isSmoker;
+      user.coughDurationDays = coughDurationDays === '' ? undefined : Number(coughDurationDays);
+      user.symptoms = symptoms;
+      setSaveMessage('Data medis berhasil disimpan!');
+      setTimeout(() => setSaveMessage(''), 3000);
+    } catch (e) {
+      console.error(e);
+      setSaveMessage('Gagal menyimpan data.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const initials = user.name
     .split(' ')
@@ -120,6 +155,48 @@ export default function ProfilePage() {
             <div className="text-2xl font-medium mb-1" style={{ letterSpacing: '-0.03em' }}>{stats.chats}</div>
           )}
           <div className="text-sm font-medium opacity-70">Sesi Chatbot</div>
+        </div>
+      </motion.div>
+
+      {/* Medical Context Form */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="rounded-3xl p-6 mb-6"
+        style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}
+      >
+        <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-ink)' }}>Konteks Medis (Untuk Akurasi AI)</h3>
+        <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Lengkapi data ini agar AI dapat menganalisis batuk Anda dengan lebih akurat.</p>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-ink)' }}>Umur</label>
+            <input type="number" value={age} onChange={e => setAge(e.target.value ? Number(e.target.value) : '')} placeholder="Contoh: 25" className="w-full px-4 py-3 rounded-xl outline-none transition-all" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-ink)' }} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-ink)' }}>Sudah berapa hari batuk?</label>
+            <input type="number" value={coughDurationDays} onChange={e => setCoughDurationDays(e.target.value ? Number(e.target.value) : '')} placeholder="Contoh: 3" className="w-full px-4 py-3 rounded-xl outline-none transition-all" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-ink)' }} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-ink)' }}>Gejala Penyerta (Opsional)</label>
+            <input type="text" value={symptoms} onChange={e => setSymptoms(e.target.value)} placeholder="Contoh: demam, sesak napas, pilek" className="w-full px-4 py-3 rounded-xl outline-none transition-all" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-ink)' }} />
+          </div>
+          <div className="flex items-center gap-3 mt-2">
+            <input type="checkbox" id="smoker" checked={isSmoker} onChange={e => setIsSmoker(e.target.checked)} className="w-5 h-5 rounded" style={{ accentColor: 'var(--bg-primary)' }} />
+            <label htmlFor="smoker" className="text-sm font-medium" style={{ color: 'var(--text-ink)' }}>Saya seorang perokok aktif</label>
+          </div>
+          
+          <div className="pt-2">
+            <button onClick={handleSaveMedicalData} disabled={isSaving} className="btn-primary w-full py-3">
+              {isSaving ? 'Menyimpan...' : 'Simpan Data Medis'}
+            </button>
+            {saveMessage && (
+              <p className={`text-sm text-center mt-3 font-medium ${saveMessage.includes('berhasil') ? 'text-green-500' : 'text-red-500'}`}>
+                {saveMessage}
+              </p>
+            )}
+          </div>
         </div>
       </motion.div>
 

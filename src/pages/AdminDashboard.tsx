@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { Users, Activity, FileWarning, TrendingUp, BarChart3, ChevronDown, Clock } from 'lucide-react';
+import { Users, Activity, FileWarning, TrendingUp, BarChart3, ChevronDown, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { collection, getDocs, getCountFromServer, query, orderBy, where, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, getCountFromServer, query, orderBy, where, Timestamp, getDoc, doc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { StatCardSkeleton, ChartBarSkeleton, TableRowSkeleton } from '../components/ui/SkeletonLoader';
 import { ErrorState } from '../components/ui/ErrorState';
@@ -16,7 +16,10 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState({ totalScreenings: 0, totalUsers: 0, lowRisk: 0, mediumRisk: 0, highRisk: 0, chatSessions: 0 });
   const [dailyData, setDailyData] = useState<DailyData[]>([]);
-  const [recentScreenings, setRecentScreenings] = useState<RecentScreening[]>([]);
+  const [allScreenings, setAllScreenings] = useState<RecentScreening[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
@@ -28,11 +31,18 @@ export default function AdminDashboard() {
     setIsLoading(true); setError(null);
     try {
       const [uSnap, cSnap] = await Promise.all([
-        getCountFromServer(query(collection(db, 'users'))),
+        getDocs(query(collection(db, 'users'))),
         getCountFromServer(query(collection(db, 'chat_sessions'))),
       ]);
-      const totalUsers = uSnap.data().count;
+      const totalUsers = uSnap.size;
       const chatSessions = cSnap.data().count;
+
+      const userNames = new Map<string, string>();
+      uSnap.forEach(doc => {
+        if (doc.data().name) {
+          userNames.set(doc.id, doc.data().name);
+        }
+      });
 
       const now = new Date();
       let startDate: Date | null = null;
@@ -69,14 +79,16 @@ export default function AdminDashboard() {
         date: ds, count: c, label: new Date(ds).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
       })));
 
-      // Recent 5
-      setRecentScreenings(all.slice(0, 5).map((s: any) => ({
-        id: s.id,
-        userId: s.userId ? `${s.userId.slice(0, 6)}...` : 'N/A',
-        riskLevel: s.riskLevel || 'Unknown',
-        riskScore: s.riskScore || 0,
-        date: s.createdAt ? (s.createdAt.toDate ? s.createdAt.toDate() : new Date(s.createdAt.seconds * 1000)).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A',
-      })));
+      setAllScreenings(all.map((s: any) => {
+        const userName = userNames.get(s.userId);
+        return {
+          id: s.id,
+          userId: userName ? userName : (s.userId ? `${s.userId.slice(0, 6)}...` : 'N/A'),
+          riskLevel: s.riskLevel || 'Unknown',
+          riskScore: s.riskScore || 0,
+          date: s.createdAt ? (s.createdAt.toDate ? s.createdAt.toDate() : new Date(s.createdAt.seconds * 1000)).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A',
+        };
+      }));
     } catch (err: any) {
       console.error("Error fetching admin data:", err);
       if (err?.message?.includes('index')) {
@@ -87,7 +99,7 @@ export default function AdminDashboard() {
     } finally { setIsLoading(false); }
   }, [user, timeRange]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); setCurrentPage(1); }, [fetchData]);
 
   if (!user || user.role !== 'admin') return <Navigate to="/dashboard" replace />;
 
@@ -97,6 +109,15 @@ export default function AdminDashboard() {
     'Medium Risk': { t: 'var(--color-warning)', b: '#e8b94a33' },
     'High Risk': { t: 'var(--color-error)', b: '#ff4d8b33' },
   };
+
+  const filteredScreenings = allScreenings.filter(s => 
+    s.userId.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    s.riskLevel.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    s.date.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.max(1, Math.ceil(filteredScreenings.length / itemsPerPage));
+  const currentScreenings = filteredScreenings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-20">
@@ -199,36 +220,75 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Screenings Table */}
+        {/* All Screenings Table */}
         <div className="rounded-3xl p-6" style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}>
-          <h3 className="font-semibold flex items-center gap-2 mb-6" style={{ color: 'var(--text-ink)' }}><Clock className="w-5 h-5" style={{ color: 'var(--text-muted)' }} /> Screening Terbaru</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <h3 className="font-semibold flex items-center gap-2" style={{ color: 'var(--text-ink)' }}><Clock className="w-5 h-5" style={{ color: 'var(--text-muted)' }} /> Daftar Screening</h3>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Cari nama, risiko, tanggal..." 
+                value={searchTerm}
+                onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                className="w-full pl-9 pr-4 py-2 text-sm rounded-xl outline-none transition-colors"
+                style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-ink)' }}
+              />
+            </div>
+          </div>
           <div className="overflow-x-auto -mx-6">
             <table className="w-full min-w-[500px]">
               <thead>
                 <tr className="border-b" style={{ borderColor: 'var(--border)' }}>
                   <th className="text-left text-xs font-semibold uppercase tracking-wider px-6 py-3" style={{ color: 'var(--text-muted)' }}>Tanggal</th>
-                  <th className="text-left text-xs font-semibold uppercase tracking-wider px-4 py-3" style={{ color: 'var(--text-muted)' }}>User ID</th>
+                  <th className="text-left text-xs font-semibold uppercase tracking-wider px-4 py-3" style={{ color: 'var(--text-muted)' }}>Pengguna</th>
                   <th className="text-left text-xs font-semibold uppercase tracking-wider px-4 py-3" style={{ color: 'var(--text-muted)' }}>Skor</th>
                   <th className="text-left text-xs font-semibold uppercase tracking-wider px-4 py-3" style={{ color: 'var(--text-muted)' }}>Risiko</th>
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} cols={4} />) : recentScreenings.length === 0 ? (
-                  <tr><td colSpan={4} className="text-center py-8 text-sm" style={{ color: 'var(--text-muted)' }}>Belum ada data.</td></tr>
-                ) : recentScreenings.map((s, i) => {
+                {isLoading ? Array.from({ length: Math.min(5, itemsPerPage) }).map((_, i) => <TableRowSkeleton key={i} cols={4} />) : filteredScreenings.length === 0 ? (
+                  <tr><td colSpan={4} className="text-center py-8 text-sm" style={{ color: 'var(--text-muted)' }}>Tidak ada data yang cocok dengan pencarian Anda.</td></tr>
+                ) : currentScreenings.map((s, i) => {
                   const rs = riskStyles[s.riskLevel] || { t: 'var(--text-muted)', b: 'var(--bg-card)' };
                   return (
-                    <motion.tr key={s.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }} className="border-b last:border-0 transition-colors" style={{ borderColor: 'var(--border-soft)' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-card)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                      <td className="px-6 py-3.5 text-sm font-medium" style={{ color: 'var(--text-ink)' }}>{s.date}</td>
-                      <td className="px-4 py-3.5 text-sm font-mono" style={{ color: 'var(--text-muted)' }}>{s.userId}</td>
+                    <motion.tr key={s.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }} className="border-b last:border-0 transition-colors" style={{ borderColor: 'var(--border-soft)' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-card)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <td className="px-6 py-3.5 text-sm font-medium whitespace-nowrap" style={{ color: 'var(--text-ink)' }}>{s.date}</td>
+                      <td className="px-4 py-3.5 text-sm font-medium" style={{ color: 'var(--text-ink)' }}>{s.userId}</td>
                       <td className="px-4 py-3.5 text-sm font-bold" style={{ color: 'var(--text-ink)' }}>{s.riskScore}</td>
-                      <td className="px-4 py-3.5"><span className={`text-xs font-semibold px-2.5 py-1 rounded-xl`} style={{ backgroundColor: rs.b, color: rs.t }}>{s.riskLevel}</span></td>
+                      <td className="px-4 py-3.5 whitespace-nowrap"><span className={`text-xs font-semibold px-2.5 py-1 rounded-xl`} style={{ backgroundColor: rs.b, color: rs.t }}>{s.riskLevel}</span></td>
                     </motion.tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
+          
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between border-t pt-4" style={{ borderColor: 'var(--border)' }}>
+              <div className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+                Halaman {currentPage} dari {totalPages}
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg transition-colors disabled:opacity-50"
+                  style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-ink)' }}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg transition-colors disabled:opacity-50"
+                  style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-ink)' }}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </>)}
     </div>

@@ -16,12 +16,33 @@ export default function ScreeningPage() {
   const [analysisStep, setAnalysisStep] = useState(0);
   const [micError, setMicError] = useState<string | null>(null);
 
+  // Medical Context Form State
+  const { user } = useAuth();
+  const [age, setAge] = useState<number | ''>('');
+  const [isSmoker, setIsSmoker] = useState<boolean>(false);
+  const [coughDurationDays, setCoughDurationDays] = useState<number | ''>('');
+  const [symptoms, setSymptoms] = useState<string>('');
+
+  useEffect(() => {
+    if (user) {
+      if (user.age !== undefined) setAge(user.age);
+      if (user.isSmoker !== undefined) setIsSmoker(user.isSmoker);
+      if (user.coughDurationDays !== undefined) setCoughDurationDays(user.coughDurationDays);
+      if (user.symptoms !== undefined) setSymptoms(user.symptoms);
+    }
+  }, [user]);
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const volumeHistoryRef = useRef<number[]>([]);
+  const animationFrameRef = useRef<number | null>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
   const isDashboard = location.pathname.startsWith('/dashboard');
 
   useEffect(() => {
@@ -46,11 +67,52 @@ export default function ScreeningPage() {
     setMicError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Setup Web Audio API for volume monitoring
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = audioCtx.createAnalyser();
+      const source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      audioContextRef.current = audioCtx;
+      analyserRef.current = analyser;
+      dataArrayRef.current = dataArray;
+      volumeHistoryRef.current = [];
+
+      const checkVolume = () => {
+        if (!analyserRef.current || !dataArrayRef.current) return;
+        analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+        let sum = 0;
+        for(let i = 0; i < bufferLength; i++) {
+          sum += dataArrayRef.current[i];
+        }
+        volumeHistoryRef.current.push(sum / bufferLength);
+        animationFrameRef.current = requestAnimationFrame(checkVolume);
+      };
+      checkVolume();
+
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
       mediaRecorder.ondataavailable = (event) => { if (event.data.size > 0) audioChunksRef.current.push(event.data); };
       mediaRecorder.onstop = () => {
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') audioContextRef.current.close();
+        
+        // Cek apakah suara terlalu senyap
+        const maxVolume = Math.max(...(volumeHistoryRef.current.length ? volumeHistoryRef.current : [0]));
+        if (maxVolume < 5) { // Threshold volume sangat rendah
+           setMicError('Suara terlalu senyap atau tidak terdeteksi. Pastikan mikrofon Anda aktif dan ulangi perekaman.');
+           setAudioBlob(null);
+           setIsRecording(false);
+           setRecordingTime(0);
+           stream.getTracks().forEach(track => track.stop());
+           return;
+        }
+
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
@@ -79,21 +141,45 @@ export default function ScreeningPage() {
       setAnalysisStep(i);
       await new Promise(r => setTimeout(r, 1200));
     }
-    const result = await analyzeCoughAudio(audioBlob);
-    if (user) {
-      try {
-        await addDoc(collection(db, 'screenings'), {
-          userId: user.id, riskScore: result.score, riskLevel: result.riskLevel, aiInsight: result.insight, createdAt: serverTimestamp()
-        });
-      } catch (error: any) { console.error('Failed to save screening:', error); }
+    try {
+      setMicError(null);
+      const userContextLocal = {
+        age: age === '' ? undefined : Number(age),
+        isSmoker,
+        coughDurationDays: coughDurationDays === '' ? undefined : Number(coughDurationDays),
+        symptoms
+      };
+      
+      const analyzePromise = analyzeCoughAudio(audioBlob, userContextLocal);
+      const timeoutPromise = new Promise<any>((_, reject) => {
+        setTimeout(() => reject(new Error('TIMEOUT')), 15000); // 15 detik batas waktu
+      });
+
+      const result = await Promise.race([analyzePromise, timeoutPromise]);
+      
+      if (user) {
+        try {
+          await addDoc(collection(db, 'screenings'), {
+            userId: user.id, riskScore: result.score, riskLevel: result.riskLevel, aiInsight: result.insight, createdAt: serverTimestamp()
+          });
+        } catch (error: any) { console.error('Failed to save screening:', error); }
+      }
+      navigate(isDashboard ? '/dashboard/result' : '/result', { state: { result } });
+    } catch (error: any) {
+      setIsAnalyzing(false);
+      setAnalysisStep(0);
+      if (error.message === 'TIMEOUT') {
+        setMicError("Waktu analisis habis. Server AI sedang sibuk atau koneksi lambat, silakan coba lagi.");
+      } else {
+        setMicError("Terjadi kesalahan saat memproses audio. Silakan coba lagi.");
+      }
     }
-    navigate(isDashboard ? '/dashboard/result' : '/result', { state: { result } });
   };
 
   if (isAnalyzing) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-6" style={{ backgroundColor: 'var(--bg-canvas)' }}>
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="p-10 rounded-3xl flex flex-col items-center max-w-md w-full text-center" style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}>
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 backdrop-blur-sm" style={{ backgroundColor: 'var(--overlay-black)' }}>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="p-10 rounded-3xl flex flex-col items-center max-w-md w-full text-center shadow-2xl" style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}>
           <div className="relative w-32 h-32 flex items-center justify-center mb-8">
             <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 3, ease: "linear" }} className="absolute inset-0 rounded-full border-4 border-dashed" style={{ borderColor: 'var(--border)' }} />
             <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-on-primary)' }}>
@@ -134,6 +220,31 @@ export default function ScreeningPage() {
               <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" /> Posisikan smartphone sektar 20-30cm dari mulut.</li>
               <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" /> Batuklah secara natural 3-5 kali berturut-turut.</li>
             </ul>
+          </div>
+        </div>
+
+        {/* Medical Context Form */}
+        <div className="rounded-3xl p-6 mb-8" style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}>
+          <h3 className="font-semibold mb-2 text-sm" style={{ color: 'var(--text-ink)' }}>Konteks Medis (Opsional)</h3>
+          <p className="text-xs mb-5" style={{ color: 'var(--text-muted)' }}>Isi data ini agar AI dapat menganalisis batuk Anda dengan lebih presisi.</p>
+          
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-ink)' }}>Umur</label>
+              <input type="number" value={age} onChange={e => setAge(e.target.value ? Number(e.target.value) : '')} placeholder="Contoh: 25" className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-ink)' }} disabled={isRecording || isAnalyzing} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-ink)' }}>Sudah berapa hari batuk?</label>
+              <input type="number" value={coughDurationDays} onChange={e => setCoughDurationDays(e.target.value ? Number(e.target.value) : '')} placeholder="Contoh: 3" className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-ink)' }} disabled={isRecording || isAnalyzing} />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-ink)' }}>Gejala Penyerta (Opsional)</label>
+              <input type="text" value={symptoms} onChange={e => setSymptoms(e.target.value)} placeholder="Contoh: demam, sesak napas, pilek" className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-ink)' }} disabled={isRecording || isAnalyzing} />
+            </div>
+            <div className="sm:col-span-2 flex items-center gap-3">
+              <input type="checkbox" id="smoker-screening" checked={isSmoker} onChange={e => setIsSmoker(e.target.checked)} className="w-4 h-4 rounded" style={{ accentColor: 'var(--bg-primary)' }} disabled={isRecording || isAnalyzing} />
+              <label htmlFor="smoker-screening" className="text-xs font-medium" style={{ color: 'var(--text-ink)' }}>Saya seorang perokok aktif</label>
+            </div>
           </div>
         </div>
 
