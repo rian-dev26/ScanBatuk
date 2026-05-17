@@ -105,9 +105,9 @@ export default function AdminDashboard() {
 
   const maxChart = Math.max(...dailyData.map(d => d.count), 1);
   const riskStyles: Record<string, { t: string; b: string }> = {
-    'Low Risk': { t: 'var(--color-success)', b: 'var(--color-brand-mint)' },
-    'Medium Risk': { t: 'var(--color-warning)', b: '#e8b94a33' },
-    'High Risk': { t: 'var(--color-error)', b: '#ff4d8b33' },
+    'Low Risk': { t: 'var(--color-success)', b: '#F0FDF4' },
+    'Medium Risk': { t: 'var(--color-warning)', b: '#FFFBEB' },
+    'High Risk': { t: 'var(--color-error)', b: '#FEF2F2' },
   };
 
   const filteredScreenings = allScreenings.filter(s => 
@@ -144,21 +144,21 @@ export default function AdminDashboard() {
         {/* Stats — Saturated brand color cards */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {isLoading ? Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />) : [
-            { label: 'Total Screening', value: stats.totalScreenings, icon: Activity, cardBg: 'var(--color-brand-lavender)' },
-            { label: 'Total Pengguna', value: stats.totalUsers, icon: Users, cardBg: 'var(--color-brand-peach)' },
-            { label: 'High Risk', value: stats.highRisk, icon: FileWarning, cardBg: 'var(--color-brand-pink)' },
-            { label: 'Sesi Chatbot', value: stats.chatSessions, icon: TrendingUp, cardBg: 'var(--color-brand-mint)' },
+            { label: 'Total Screening', value: stats.totalScreenings, icon: Activity, cardBg: '#DCFCE7' },
+            { label: 'Total Pengguna', value: stats.totalUsers, icon: Users, cardBg: '#F0FDF4' },
+            { label: 'High Risk', value: stats.highRisk, icon: FileWarning, cardBg: '#FEF2F2' },
+            { label: 'Sesi Chatbot', value: stats.chatSessions, icon: TrendingUp, cardBg: '#DCFCE7' },
           ].map((stat, i) => (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} key={i}
               className="card-feature flex flex-col"
-              style={{ backgroundColor: stat.cardBg }}
+              style={{ backgroundColor: stat.cardBg, border: '1px solid var(--border)' }}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl bg-white/30 flex items-center justify-center text-[#0a0a0a]"><stat.icon className="w-5 h-5" /></div>
+                <div className="w-10 h-10 rounded-xl bg-white/30 flex items-center justify-center" style={{ color: '#0a0a0a' }}><stat.icon className="w-5 h-5" /></div>
               </div>
               <div className="mt-auto">
-                <p className="text-[#0a0a0a]/70 text-sm font-medium mb-1">{stat.label}</p>
-                <h3 className="text-2xl font-medium text-[#0a0a0a]" style={{ letterSpacing: '-0.03em' }}>{stat.value}</h3>
+                <p className="text-sm font-medium mb-1" style={{ color: '#0a0a0a', opacity: 0.8 }}>{stat.label}</p>
+                <h3 className="text-2xl font-medium" style={{ letterSpacing: '-0.03em', color: '#0a0a0a' }}>{stat.value}</h3>
               </div>
             </motion.div>
           ))}

@@ -100,8 +100,8 @@ export default function ProfilePage() {
       >
         {/* Banner — brand teal */}
         <div className="h-36 relative rounded-t-3xl overflow-hidden" style={{ backgroundColor: 'var(--bg-brand-teal)' }}>
-          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#a4d4c5] opacity-15 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-          <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-[#b8a4ed] opacity-10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#22C55E] opacity-[0.08] rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-[#16A34A] opacity-[0.06] rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
         </div>
 
         {/* Avatar + Info */}
@@ -134,8 +134,8 @@ export default function ProfilePage() {
         transition={{ delay: 0.1 }}
         className="grid grid-cols-2 gap-4 mb-6"
       >
-        <div className="card-feature text-[#0a0a0a] text-center !p-5" style={{ backgroundColor: 'var(--color-brand-lavender)' }}>
-          <div className="w-10 h-10 rounded-xl bg-white/30 flex items-center justify-center mx-auto mb-3">
+        <div className="card-feature text-center !p-5" style={{ backgroundColor: '#F0FDF4', color: '#0a0a0a', border: '1px solid var(--border)' }}>
+          <div className="w-10 h-10 rounded-xl bg-[#16A34A]/10 flex items-center justify-center mx-auto mb-3" style={{ color: '#16A34A' }}>
             <Activity className="w-5 h-5" />
           </div>
           {isLoading ? (
@@ -143,10 +143,10 @@ export default function ProfilePage() {
           ) : (
             <div className="text-2xl font-medium mb-1" style={{ letterSpacing: '-0.03em' }}>{stats.screenings}</div>
           )}
-          <div className="text-sm font-medium opacity-70">Total Screening</div>
+          <div className="text-sm font-medium opacity-80">Total Screening</div>
         </div>
-        <div className="card-feature text-[#0a0a0a] text-center !p-5" style={{ backgroundColor: 'var(--color-brand-peach)' }}>
-          <div className="w-10 h-10 rounded-xl bg-white/30 flex items-center justify-center mx-auto mb-3">
+        <div className="card-feature text-center !p-5" style={{ backgroundColor: '#DCFCE7', color: '#0a0a0a', border: '1px solid var(--border)' }}>
+          <div className="w-10 h-10 rounded-xl bg-[#16A34A]/10 flex items-center justify-center mx-auto mb-3" style={{ color: '#16A34A' }}>
             <UserIcon className="w-5 h-5" />
           </div>
           {isLoading ? (
@@ -154,7 +154,7 @@ export default function ProfilePage() {
           ) : (
             <div className="text-2xl font-medium mb-1" style={{ letterSpacing: '-0.03em' }}>{stats.chats}</div>
           )}
-          <div className="text-sm font-medium opacity-70">Sesi Chatbot</div>
+          <div className="text-sm font-medium opacity-80">Sesi Chatbot</div>
         </div>
       </motion.div>
 
@@ -215,7 +215,7 @@ export default function ProfilePage() {
           onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
         >
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[#1a3a3a]" style={{ backgroundColor: 'var(--color-brand-mint)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[#16A34A]" style={{ backgroundColor: '#DCFCE7' }}>
               <Activity className="w-5 h-5" />
             </div>
             <div>

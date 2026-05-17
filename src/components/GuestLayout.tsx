@@ -53,8 +53,8 @@ export function GuestLayout() {
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-full">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-[#a4d4c5] flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
-              <Activity className="w-5 h-5 text-[#1a3a3a]" />
+            <div className="w-9 h-9 rounded-xl bg-[#DCFCE7] flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
+              <Activity className="w-5 h-5 text-[#16A34A]" />
             </div>
             <span className="font-medium text-lg tracking-tight" style={{ letterSpacing: '-0.03em', color: 'var(--text-ink)' }}>ScanBatuk</span>
           </Link>
@@ -172,8 +172,8 @@ export function GuestLayout() {
           <div className="flex flex-col md:flex-row justify-between items-start gap-8">
             <div>
               <Link to="/" className="flex items-center space-x-2 group mb-4">
-                <div className="w-8 h-8 rounded-xl bg-[#a4d4c5] flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
-                  <Activity className="w-4 h-4 text-[#1a3a3a]" />
+                <div className="w-8 h-8 rounded-xl bg-[#DCFCE7] flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
+                  <Activity className="w-4 h-4 text-[#16A34A]" />
                 </div>
                 <span className="font-medium text-lg" style={{ letterSpacing: '-0.03em', color: 'var(--text-ink)' }}>ScanBatuk</span>
               </Link>

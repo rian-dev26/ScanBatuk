@@ -25,10 +25,10 @@ interface PlaceResult {
 }
 
 const SEARCH_CATEGORIES = [
-  { label: 'Rumah Sakit', query: 'rumah sakit', icon: Hospital, color: 'var(--color-brand-pink)' },
-  { label: 'Apotek', query: 'apotek pharmacy', icon: Pill, color: 'var(--color-brand-mint)' },
-  { label: 'Klinik', query: 'klinik kesehatan', icon: Building2, color: 'var(--color-brand-lavender)' },
-  { label: 'Puskesmas', query: 'puskesmas', icon: Building2, color: 'var(--color-brand-ochre)' },
+  { label: 'Rumah Sakit', query: 'rumah sakit', icon: Hospital, color: '#EF4444' },
+  { label: 'Apotek', query: 'apotek pharmacy', icon: Pill, color: '#22C55E' },
+  { label: 'Klinik', query: 'klinik kesehatan', icon: Building2, color: '#16A34A' },
+  { label: 'Puskesmas', query: 'puskesmas', icon: Building2, color: '#F59E0B' },
 ];
 
 export default function NearbyPage() {
@@ -107,9 +107,9 @@ export default function NearbyPage() {
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 10,
-        fillColor: '#0a0a0a',
+        fillColor: '#16A34A',
         fillOpacity: 1,
-        strokeColor: '#fffaf0',
+        strokeColor: '#ffffff',
         strokeWeight: 3,
       },
       title: 'Lokasi Anda',
@@ -191,7 +191,7 @@ export default function NearbyPage() {
           label: { text: `${i + 1}`, color: '#fff', fontSize: '11px', fontWeight: 'bold' },
           icon: {
             path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',
-            fillColor: '#0a0a0a',
+            fillColor: '#16A34A',
             fillOpacity: 1,
             strokeColor: '#ffffff',
             strokeWeight: 1,
@@ -247,7 +247,7 @@ export default function NearbyPage() {
           <h1 className="text-3xl font-medium mb-2" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>Lokasi Fasilitas Kesehatan</h1>
         </div>
         <div className="rounded-3xl p-12 text-center" style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}>
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'var(--color-brand-ochre)', opacity: 0.2 }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#DCFCE7' }}>
             <AlertCircle className="w-8 h-8" style={{ color: 'var(--color-warning)' }} />
           </div>
           <h3 className="font-semibold mb-2" style={{ color: 'var(--text-ink)' }}>API Key Belum Dikonfigurasi</h3>
@@ -482,8 +482,8 @@ export default function NearbyPage() {
               className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm rounded-3xl shadow-2xl p-6 z-50"
               style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: 'var(--color-brand-mint)' }}>
-                <MapPin className="w-6 h-6 text-[#1a3a3a]" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: '#DCFCE7' }}>
+                <MapPin className="w-6 h-6 text-[#16A34A]" />
               </div>
               <h3 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-ink)', letterSpacing: '-0.02em' }}>Buka di Google Maps?</h3>
               <p className="text-sm mb-1 font-medium" style={{ color: 'var(--text-ink)' }}>{pendingMapsPlace.name}</p>
@@ -500,8 +500,8 @@ export default function NearbyPage() {
                     window.open(pendingMapsPlace.url, '_blank');
                     setPendingMapsPlace(null);
                   }}
-                  className="flex-1 py-3 px-4 rounded-xl font-semibold text-sm text-[#1a3a3a] transition-all"
-                  style={{ backgroundColor: 'var(--color-brand-mint)' }}
+                  className="flex-1 py-3 px-4 rounded-xl font-semibold text-sm text-white transition-all"
+                  style={{ backgroundColor: '#16A34A' }}
                 >
                   Buka Google Maps
                 </button>

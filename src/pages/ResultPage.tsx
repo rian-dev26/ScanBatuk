@@ -40,21 +40,24 @@ export default function ResultPage() {
   const { riskLevel, score, insight } = result;
   const animatedScore = useCountUp(score, 400);
 
-  let riskColor = "var(--color-success)";
-  let riskBg = "var(--color-brand-mint)";
-  let gaugeColor = "var(--color-success)";
-  let riskBgStyle = { backgroundColor: 'var(--color-brand-mint)' };
+  let riskColor = "#22C55E";
+  let riskBg = "#F0FDF4";
+  let gaugeColor = "#22C55E";
+  let riskBgStyle = { backgroundColor: '#F0FDF4', border: '1px solid #DCFCE7' };
+  let riskTextColor = "#14532D";
   
   if (riskLevel === 'Medium Risk') {
-    riskColor = "var(--color-warning)";
-    riskBg = "var(--color-brand-ochre)";
-    gaugeColor = "var(--color-warning)";
-    riskBgStyle = { backgroundColor: 'var(--color-brand-ochre)' };
+    riskColor = "#F59E0B";
+    riskBg = "#FFFBEB";
+    gaugeColor = "#F59E0B";
+    riskBgStyle = { backgroundColor: '#FFFBEB', border: '1px solid #FDE68A' };
+    riskTextColor = "#92400E";
   } else if (riskLevel === 'High Risk') {
-    riskColor = "var(--color-error)";
-    riskBg = "var(--color-brand-pink)";
-    gaugeColor = "var(--color-error)";
-    riskBgStyle = { backgroundColor: 'var(--color-brand-pink)' };
+    riskColor = "#EF4444";
+    riskBg = "#FEF2F2";
+    gaugeColor = "#EF4444";
+    riskBgStyle = { backgroundColor: '#FEF2F2', border: '1px solid #FECACA' };
+    riskTextColor = "#991B1B";
   }
 
   return (
@@ -99,8 +102,8 @@ export default function ResultPage() {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 400, damping: 12, delay: 0.6 }}
-              className="px-6 py-2.5 rounded-xl font-semibold text-lg mb-2 text-[#0a0a0a]"
-              style={riskBgStyle}
+              className="px-6 py-2.5 rounded-xl font-semibold text-lg mb-2"
+              style={{ ...riskBgStyle, color: riskTextColor }}
             >
               {riskLevel}
             </motion.div>
@@ -133,7 +136,7 @@ export default function ResultPage() {
              >
                 <button onClick={() => navigate(nearbyPath)} className="w-full flex items-center justify-between p-4 rounded-2xl transition-colors text-left group" onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-card)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[#1a3a3a]" style={{ backgroundColor: 'var(--color-brand-mint)' }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[#16A34A]" style={{ backgroundColor: '#DCFCE7' }}>
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>

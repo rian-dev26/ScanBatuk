@@ -178,7 +178,7 @@ export default function ChatbotPage({ initialMessage = '' }: { initialMessage?: 
         
         {/* Header */}
         <div className="px-5 py-4 flex items-center gap-3 z-10 pr-12" style={{ backgroundColor: 'var(--bg-canvas)', borderBottom: '1px solid var(--border)' }}>
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand-mint)', color: '#1a3a3a' }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: '#DCFCE7', color: '#16A34A' }}>
             <Activity className="w-6 h-6" />
           </div>
           <div>
@@ -200,8 +200,8 @@ export default function ChatbotPage({ initialMessage = '' }: { initialMessage?: 
                 className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
               >
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                  msg.role === 'user' ? 'bg-[#0a0a0a] text-white' : 'text-[#1a3a3a]'
-                }`} style={msg.role !== 'user' ? { backgroundColor: 'var(--color-brand-mint)' } : { backgroundColor: 'var(--bg-primary)', color: 'var(--text-on-primary)' }}>
+                  msg.role === 'user' ? 'bg-[#0a0a0a] text-white' : 'text-[#14532D]'
+                }`} style={msg.role !== 'user' ? { backgroundColor: '#DCFCE7' } : { backgroundColor: 'var(--bg-primary)', color: 'var(--text-on-primary)' }}>
                   {msg.role === 'user' ? <UserIcon className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
                 </div>
                 
@@ -227,11 +227,11 @@ export default function ChatbotPage({ initialMessage = '' }: { initialMessage?: 
               animate={{ opacity: 1, y: 0 }}
               className="flex gap-4"
             >
-               <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand-mint)', color: '#1a3a3a' }}>
+               <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: '#DCFCE7', color: '#16A34A' }}>
                  <Activity className="w-4 h-4" />
                </div>
                <div className="rounded-2xl rounded-tl-sm px-5 py-4 flex flex-col gap-2" style={{ backgroundColor: 'var(--bg-canvas)', border: '1px solid var(--border)' }}>
-                 <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--color-brand-lavender)' }} />
+                 <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--bg-primary)' }} />
                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>AI sedang memproses...</span>
                </div>
             </motion.div>

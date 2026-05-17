@@ -45,7 +45,7 @@ export function AIChatButton() {
               <motion.div className="absolute inset-0 rounded-full opacity-20" style={{ backgroundColor: 'var(--bg-primary)' }} animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0, 0.2] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
               <button onClick={() => { setIsOpen(true); setShowTooltip(false); }} className="animate-breathe relative flex items-center gap-3 px-5 h-14 rounded-xl shadow-lg group transition-all duration-300 overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-on-primary)' }}>
                 <motion.div animate={{ rotate: [0, 15, -10, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>
-                  <Sparkles className="w-5 h-5 text-[#e8b94a] relative z-10" />
+                  <Sparkles className="w-5 h-5 text-[#16A34A] relative z-10" />
                 </motion.div>
                 <span className="font-semibold text-sm whitespace-nowrap relative z-10">Tanya AI</span>
                 <motion.span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#22c55e] rounded-full" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />

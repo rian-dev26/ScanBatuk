@@ -211,14 +211,14 @@ export default function ScreeningPage() {
         </div>
 
         {/* Instructions Card */}
-        <div className="card-feature bg-[#ffb084] text-[#0a0a0a] mb-8 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-white/30 flex items-center justify-center shrink-0"><Info className="w-5 h-5" /></div>
+        <div className="card-feature mb-8 flex items-start gap-4" style={{ backgroundColor: '#d4e4d8ff', border: '1px solid rgba(0,0,0,0.1)', color: '#0a0a0a' }}>
+          <div className="w-10 h-10 rounded-xl bg-[#16A34A]/10 flex items-center justify-center shrink-0"><Info className="w-5 h-5 text-[#16A34A]" /></div>
           <div>
-            <h3 className="font-semibold mb-2">Instruksi Perekaman</h3>
-            <ul className="space-y-2 text-sm opacity-80">
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" /> Pindah ke ruangan yang senyap dan tidak bising.</li>
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" /> Posisikan smartphone sektar 20-30cm dari mulut.</li>
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" /> Batuklah secara natural 3-5 kali berturut-turut.</li>
+            <h3 className="font-semibold mb-2" style={{ color: '#0a0a0a' }}>Instruksi Perekaman</h3>
+            <ul className="space-y-2 text-sm opacity-80" style={{ color: '#0a0a0a' }}>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" /> Pindah ke ruangan yang senyap dan tidak bising.</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" /> Posisikan smartphone sektar 20-30cm dari mulut.</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" /> Batuklah secara natural 3-5 kali berturut-turut.</li>
             </ul>
           </div>
         </div>
@@ -259,13 +259,13 @@ export default function ScreeningPage() {
                 {isRecording && (
                   <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 160 160">
                     <circle cx="80" cy="80" r="72" fill="none" stroke="var(--bg-card)" strokeWidth="6" />
-                    <motion.circle cx="80" cy="80" r="72" fill="none" stroke="#ff4d8b" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 72}`} animate={{ strokeDashoffset: (2 * Math.PI * 72) * (recordingTime / 6) }} transition={{ duration: 0.9, ease: 'linear' }} />
+                    <motion.circle cx="80" cy="80" r="72" fill="none" stroke="#16A34A" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 72}`} animate={{ strokeDashoffset: (2 * Math.PI * 72) * (recordingTime / 6) }} transition={{ duration: 0.9, ease: 'linear' }} />
                   </svg>
                 )}
                 {isRecording && (
                   <>
                     {[0, 0.5, 1].map((delay, i) => (
-                      <motion.div key={i} className="absolute w-28 h-28 rounded-full bg-[#ff4d8b]" animate={{ scale: [1, 2.2], opacity: [0.35, 0] }} transition={{ duration: 1.8, repeat: Infinity, delay, ease: 'easeOut' }} />
+                      <motion.div key={i} className="absolute w-28 h-28 rounded-full bg-[#22C55E]" animate={{ scale: [1, 2.2], opacity: [0.3, 0] }} transition={{ duration: 1.8, repeat: Infinity, delay, ease: 'easeOut' }} />
                     ))}
                   </>
                 )}
@@ -273,7 +273,7 @@ export default function ScreeningPage() {
                   onClick={isRecording ? stopRecording : startRecording}
                   className={cn(
                     "relative z-10 w-28 h-28 rounded-full flex items-center justify-center text-white shadow-xl transition-transform active:scale-95",
-                    isRecording ? "bg-[#ff4d8b] hover:bg-[#e8447e]" : "hover:scale-105"
+                    isRecording ? "bg-[#16A34A] hover:bg-[#15803D]" : "hover:scale-105"
                   )}
                   style={!isRecording ? { backgroundColor: 'var(--bg-primary)', color: 'var(--text-on-primary)' } : undefined}
                 >
@@ -291,7 +291,7 @@ export default function ScreeningPage() {
                 {isRecording && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-1 h-10 mb-4">
                     {Array.from({ length: 14 }).map((_, i) => (
-                      <motion.div key={i} className="w-1.5 rounded-full" animate={{ scaleY: [0.2, 1, 0.3, 0.9, 0.2] }} transition={{ repeat: Infinity, duration: 0.8 + (i % 4) * 0.15, delay: i * 0.06, ease: 'easeInOut' }} style={{ height: '100%', transformOrigin: 'center', background: ['#ff4d8b','#b8a4ed','#ffb084','#a4d4c5','#e8b94a','#ff6b5a'][i % 6] }} />
+                      <motion.div key={i} className="w-1.5 rounded-full" animate={{ scaleY: [0.2, 1, 0.3, 0.9, 0.2] }} transition={{ repeat: Infinity, duration: 0.8 + (i % 4) * 0.15, delay: i * 0.06, ease: 'easeInOut' }} style={{ height: '100%', transformOrigin: 'center', background: ['#16A34A','#22C55E','#4ADE80','#86EFAC','#A7F3D0','#DCFCE7'][i % 6] }} />
                     ))}
                   </motion.div>
                 )}
@@ -302,14 +302,14 @@ export default function ScreeningPage() {
                   {isRecording ? 'Merekam suara...' : 'Tekan untuk merekam'}
                 </motion.h2>
               </AnimatePresence>
-              <p className={cn("text-3xl font-medium tabular-nums transition-colors", isRecording ? "text-[#ff4d8b]" : "")} style={!isRecording ? { color: 'var(--text-muted)', letterSpacing: '-0.03em' } : { letterSpacing: '-0.03em' }}>
+              <p className={cn("text-3xl font-medium tabular-nums transition-colors", isRecording ? "text-[#16A34A]" : "")} style={!isRecording ? { color: 'var(--text-muted)', letterSpacing: '-0.03em' } : { letterSpacing: '-0.03em' }}>
                 00:{String(recordingTime).padStart(2, '0')}
               </p>
-              {isRecording && <p className="text-xs font-medium text-[#ff4d8b] mt-2 opacity-80">Otomatis berhenti di 6 detik</p>}
+              {isRecording && <p className="text-xs font-medium text-[#16A34A] mt-2 opacity-80">Otomatis berhenti di 6 detik</p>}
             </>
           ) : (
             <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="w-full flex flex-col items-center relative z-10">
-              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.1 }} className="w-24 h-24 bg-[#a4d4c5] text-[#1a3a3a] rounded-full flex items-center justify-center mb-6">
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.1 }} className="w-24 h-24 bg-[#DCFCE7] text-[#16A34A] rounded-full flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-12 h-12" />
               </motion.div>
               <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl font-medium mb-2" style={{ color: 'var(--text-ink)', letterSpacing: '-0.02em' }}>

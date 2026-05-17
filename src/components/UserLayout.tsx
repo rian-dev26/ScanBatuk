@@ -17,7 +17,7 @@ export function UserLayout() {
         {/* Header - Fixed & Shrink-0 agar tidak pernah tergulung */}
         <header className="shrink-0 px-4 py-4 flex items-center justify-between md:justify-end z-30" style={{ backgroundColor: 'var(--bg-canvas)', borderBottom: '1px solid var(--border)' }}>
           <Link to="/" className="md:hidden flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 rounded-xl bg-[#a4d4c5] flex items-center justify-center text-[#1a3a3a]">
+            <div className="w-8 h-8 rounded-xl bg-[#DCFCE7] flex items-center justify-center text-[#16A34A]">
               <Activity className="w-5 h-5" />
             </div>
             <span className="font-medium text-lg" style={{ letterSpacing: '-0.03em', color: 'var(--text-ink)' }}>ScanBatuk</span>

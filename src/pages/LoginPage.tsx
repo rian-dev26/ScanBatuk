@@ -111,7 +111,7 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col justify-center w-full max-w-md mx-auto sm:max-w-none">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-3xl bg-[#a4d4c5] flex items-center justify-center mb-6"><Activity className="w-8 h-8 text-[#1a3a3a]" /></div>
+            <div className="w-16 h-16 rounded-3xl bg-[#DCFCE7] flex items-center justify-center mb-6"><Activity className="w-8 h-8 text-[#16A34A]" /></div>
           </div>
           <h2 className="mt-2 text-center text-3xl font-medium tracking-tight" style={{ color: 'var(--text-ink)', letterSpacing: '-0.025em' }}>
             {isLogin ? 'Masuk ke akun Anda' : 'Buat akun baru'}
@@ -129,8 +129,8 @@ export default function LoginPage() {
                     <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>Masukkan email Anda dan kami akan mengirimkan tautan untuk mengatur ulang sandi.</p>
                   </div>
                   {resetSent ? (
-                    <div className="bg-[#a4d4c5]/20 border border-[#a4d4c5] rounded-xl p-4 text-center">
-                      <p className="text-[#1a3a3a] font-medium mb-4">Email pengaturan ulang telah dikirim.</p>
+                    <div className="bg-[#DCFCE7]/50 border border-[#22C55E]/30 rounded-xl p-4 text-center">
+                      <p className="text-[#14532D] font-medium mb-4">Email pengaturan ulang telah dikirim.</p>
                       <button onClick={() => { setShowForgotPassword(false); setResetSent(false); }} className="text-sm font-medium" style={{ color: 'var(--text-ink)' }}>Kembali ke halaman login</button>
                     </div>
                   ) : (
@@ -222,7 +222,7 @@ export default function LoginPage() {
             )}
           </div>
           <div className="mt-6 flex items-center justify-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
-            <ShieldCheck className="w-4 h-4 text-[#22c55e]" /> Data Anda aman dan dienkripsi
+            <ShieldCheck className="w-4 h-4 text-[#16A34A]" /> Data Anda aman dan dienkripsi
           </div>
         </motion.div>
       </div>

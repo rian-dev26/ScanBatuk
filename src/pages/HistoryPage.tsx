@@ -21,9 +21,9 @@ interface ScreeningRecord {
 const PAGE_SIZE = 10;
 
 function getRiskStyles(riskLevel: string) {
-  if (riskLevel === 'Low Risk') return { color: 'var(--color-success)', bg: 'var(--color-brand-mint)' };
-  if (riskLevel === 'Medium Risk') return { color: 'var(--color-warning)', bg: '#e8b94a33' };
-  return { color: 'var(--color-error)', bg: '#ff4d8b33' };
+  if (riskLevel === 'Low Risk') return { color: 'var(--color-success)', bg: '#F0FDF4' };
+  if (riskLevel === 'Medium Risk') return { color: 'var(--color-warning)', bg: '#FFFBEB' };
+  return { color: 'var(--color-error)', bg: '#FEF2F2' };
 }
 
 export default function HistoryPage() {

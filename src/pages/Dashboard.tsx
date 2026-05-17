@@ -52,7 +52,7 @@ export default function Dashboard() {
           score: data.riskScore,
           insight: data.aiInsight || '',
           color: data.riskLevel === 'Low Risk' ? 'var(--color-success)' : data.riskLevel === 'Medium Risk' ? 'var(--color-warning)' : 'var(--color-error)',
-          bg: data.riskLevel === 'Low Risk' ? 'var(--color-brand-mint)' : data.riskLevel === 'Medium Risk' ? '#e8b94a33' : '#ff4d8b33',
+          bg: data.riskLevel === 'Low Risk' ? '#F0FDF4' : data.riskLevel === 'Medium Risk' ? '#FFFBEB' : '#FEF2F2',
           barColor: data.riskLevel === 'Low Risk' ? 'var(--color-success)' : data.riskLevel === 'Medium Risk' ? 'var(--color-warning)' : 'var(--color-error)',
         };
       });
@@ -118,11 +118,11 @@ export default function Dashboard() {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-[350px] h-[350px] bg-[#a4d4c5] opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[350px] h-[350px] bg-[#22C55E] opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
             <div className="relative z-10 mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md mb-5">
-                <Zap className="w-3.5 h-3.5 text-[#a4d4c5]" />
+                <Zap className="w-3.5 h-3.5 text-[#4ADE80]" />
                 <span className="text-xs font-medium">Berdasarkan Jadwal Mingguan</span>
               </div>
               <h2 className="text-3xl font-medium mb-3 leading-tight" style={{ letterSpacing: '-0.025em', color: 'inherit' }}>
@@ -151,22 +151,22 @@ export default function Dashboard() {
             <div className="grid sm:grid-cols-2 gap-4">
               {[
                 {
-                  icon: ShieldAlert, bg: 'var(--color-brand-lavender)',
+                  icon: ShieldAlert, bg: '#F0FDF4',
                   title: 'Kenali Gejala TB',
                   desc: 'Batuk lebih dari 2 minggu berdahak, demam meriang, dan berat badan menurun drastis.',
                 },
                 {
-                  icon: CheckCircle2, bg: 'var(--color-brand-mint)',
+                  icon: CheckCircle2, bg: '#DCFCE7',
                   title: 'Pencegahan Penularan',
                   desc: 'Tutup mulut saat bersin atau batuk, pastikan ventilasi rumah baik, dan gunakan masker.',
                 },
               ].map((card, i) => (
-                <div key={i} className="card-feature group hover:scale-[1.02] transition-transform duration-200 cursor-default" style={{ backgroundColor: card.bg }}>
-                  <div className="w-10 h-10 rounded-xl bg-white/30 flex items-center justify-center text-[#0a0a0a] mb-3 transition-transform group-hover:scale-110 duration-200">
+                <div key={i} className="card-feature group hover:scale-[1.02] transition-transform duration-200 cursor-default" style={{ backgroundColor: card.bg, border: '1px solid var(--border)' }}>
+                  <div className="w-10 h-10 rounded-xl bg-[#16A34A]/10 flex items-center justify-center mb-3 transition-transform group-hover:scale-110 duration-200" style={{ color: '#16A34A' }}>
                     <card.icon className="w-5 h-5" />
                   </div>
-                  <h4 className="font-semibold text-[#0a0a0a] mb-1">{card.title}</h4>
-                  <p className="text-sm text-[#0a0a0a]/70 line-clamp-2 leading-relaxed mb-3">{card.desc}</p>
+                  <h4 className="font-semibold mb-1" style={{ color: '#0a0a0a' }}>{card.title}</h4>
+                  <p className="text-sm line-clamp-2 leading-relaxed mb-3" style={{ color: '#0a0a0a', opacity: 0.9 }}>{card.desc}</p>
                   <button 
                     onClick={(e) => {
                       e.preventDefault();
@@ -174,7 +174,8 @@ export default function Dashboard() {
                         detail: { message: `Tolong jelaskan lebih lanjut tentang: ${card.title}` } 
                       }));
                     }}
-                    className="font-semibold text-sm text-[#0a0a0a] hover:underline underline-offset-2 mt-auto flex items-center gap-1 group/link"
+                    className="font-semibold text-sm hover:underline underline-offset-2 mt-auto flex items-center gap-1 group/link"
+                    style={{ color: '#0a0a0a' }}
                   >
                     Baca selengkapnya
                     <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1" />
@@ -259,7 +260,7 @@ export default function Dashboard() {
                     />
                   </div>
 
-                  <div className="text-[#0a0a0a] text-xs px-3 py-2.5 rounded-xl leading-relaxed flex gap-2" style={{ backgroundColor: latest.bg }}>
+                  <div className="text-xs px-3 py-2.5 rounded-xl leading-relaxed flex gap-2" style={{ backgroundColor: latest.bg, color: latest.color }}>
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>
                       {latest.risk === 'Low Risk'
@@ -289,7 +290,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-semibold text-sm" style={{ color: 'var(--text-ink)' }}>Riwayat Pengecekan</h3>
-              <Link to="/dashboard/history" className="text-xs font-semibold hover:text-[#0a0a0a] transition-colors flex items-center gap-1 group/link" style={{ color: 'var(--text-muted)' }}>
+              <Link to="/dashboard/history" className="text-xs font-semibold transition-colors flex items-center gap-1 group/link" style={{ color: 'var(--text-muted)' }}>
                 Lihat Semua
                 <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1" />
               </Link>

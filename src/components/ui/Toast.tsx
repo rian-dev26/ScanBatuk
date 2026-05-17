@@ -27,13 +27,13 @@ const icons: Record<ToastType, React.ReactNode> = {
 const getColors = (type: ToastType) => {
   switch (type) {
     case 'success':
-      return { bg: 'var(--color-brand-mint)', text: '#1a3a3a', border: 'var(--color-brand-mint)' };
+      return { bg: '#DCFCE7', text: '#14532D', border: '#22C55E' };
     case 'error':
       return { bg: 'var(--bg-error-light)', text: 'var(--text-error-strong)', border: 'var(--border-error)' };
     case 'warning':
       return { bg: 'color-mix(in srgb, var(--color-warning) 20%, transparent)', text: 'var(--color-warning)', border: 'var(--color-warning)' };
     case 'info':
-      return { bg: 'color-mix(in srgb, var(--color-brand-lavender) 20%, transparent)', text: 'var(--text-ink)', border: 'var(--color-brand-lavender)' };
+      return { bg: 'color-mix(in srgb, var(--bg-primary) 15%, transparent)', text: 'var(--text-ink)', border: 'var(--bg-primary)' };
   }
 };
 

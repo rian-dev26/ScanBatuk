@@ -56,7 +56,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       )} style={{ backgroundColor: 'var(--bg-canvas)', borderRight: '1px solid var(--border)' }}>
         {/* Logo - shrink-0 agar tidak terdesak */}
         <Link to="/" onClick={onClose} className="p-6 flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0">
-          <div className="w-8 h-8 rounded-xl bg-[#a4d4c5] flex items-center justify-center text-[#1a3a3a]">
+          <div className="w-8 h-8 rounded-xl bg-[#DCFCE7] flex items-center justify-center text-[#16A34A]">
             <Activity className="w-5 h-5" />
           </div>
           <span className="font-medium text-lg" style={{ letterSpacing: '-0.03em', color: 'var(--text-ink)' }}>ScanBatuk</span>
@@ -71,7 +71,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="min-w-0">
               <p className="font-medium truncate text-sm" style={{ color: 'var(--text-ink)' }}>{user?.name || 'Pengguna'}</p>
               {user?.role === 'admin' && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#1a3a3a] bg-[#a4d4c5] px-1.5 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#14532D] bg-[#DCFCE7] px-1.5 py-0.5 rounded-full">
                   <Shield className="w-2.5 h-2.5" /> Admin
                 </span>
               )}

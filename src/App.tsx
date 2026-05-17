@@ -37,9 +37,9 @@ function GlobalLoadingScreen() {
       <motion.div
         animate={{ scale: [1, 1.1, 1] }}
         transition={{ repeat: Infinity, duration: 1.5 }}
-        className="w-16 h-16 rounded-full bg-[#a4d4c5] flex items-center justify-center mb-6 shadow-lg"
+        className="w-16 h-16 rounded-full bg-[#DCFCE7] flex items-center justify-center mb-6 shadow-lg"
       >
-        <Activity className="w-8 h-8 text-[#1a3a3a]" />
+        <Activity className="w-8 h-8 text-[#16A34A]" />
       </motion.div>
       <p className="text-sm font-medium animate-pulse" style={{ color: 'var(--text-muted)' }}>Memuat ScanBatuk...</p>
     </motion.div>
